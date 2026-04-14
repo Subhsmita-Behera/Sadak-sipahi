@@ -1,98 +1,134 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { MaterialIcons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
+import {
+  Dimensions,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+const { width } = Dimensions.get("window");
 
-export default function HomeScreen() {
+export default function Dashboard() {
+  const router = useRouter();
+  const [userName, setUserName] = useState("Citizen Reporter");
+
+  useEffect(() => {
+    AsyncStorage.getItem("userName").then((n) => { if (n) setUserName(n); });
+  }, []);
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+    <SafeAreaView style={styles.container} edges={["top"]}>
+      <StatusBar barStyle="light-content" />
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      <View style={styles.header}>
+        <View>
+          <Text style={styles.title}>🚦 Sadak Sipahi</Text>
+          <Text style={styles.subtitle}>Making Roads Safer Together</Text>
+        </View>
+        <TouchableOpacity
+          style={styles.sos}
+          onPress={() => router.push("/sos" as any)}
+        >
+          <Text style={styles.sosText}>⚠ SOS</Text>
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View style={styles.profileCard}>
+          <Text style={styles.welcome}>Welcome Back 👋</Text>
+          <Text style={styles.username}>{userName}</Text>
+          <View style={styles.pointsBox}>
+            <Text style={styles.points}>🏆 120 Reward Points</Text>
+          </View>
+        </View>
+
+        <Text style={styles.section}>Report Traffic Issues</Text>
+        <View style={styles.grid}>
+          <ActionCard
+            icon="photo-camera"
+            title="Report Issue"
+            color="#1976d2"
+            onPress={() => router.push("/(tabs)/OcrReportScreen" as any)}
+          />
+          <ActionCard
+            icon="edit"
+            title="Manual Entry"
+            color="#fb8c00"
+            onPress={() => router.push("/manual" as any)}
+          />
+          <ActionCard
+            icon="map"
+            title="Heatmap"
+            color="#43a047"
+            onPress={() => router.push("/(tabs)/map" as any)}
+          />
+          <ActionCard
+            icon="analytics"
+            title="Track Status"
+            color="#8e24aa"
+            onPress={() => router.push("/status" as any)}
+          />
+        </View>
+
+        <Text style={styles.section}>Information</Text>
+        <View style={styles.grid}>
+          <ActionCard
+            icon="gavel"
+            title="Traffic Rules"
+            color="#e53935"
+            onPress={() => router.push("/rules" as any)}
+          />
+          <ActionCard
+            icon="help-outline"
+            title="FAQ"
+            color="#039be5"
+            onPress={() => router.push("/faq" as any)}
+          />
+          <ActionCard
+            icon="support-agent"
+            title="Help & Support"
+            color="#00897b"
+            onPress={() => router.push("/support" as any)}
+          />
+        </View>
+
+        <View style={{ height: 120 }} />
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
+const ActionCard = ({ icon, title, color, onPress }: any) => (
+  <TouchableOpacity
+    style={[styles.actionCard, { borderTopColor: color }]}
+    onPress={onPress}
+  >
+    <MaterialIcons name={icon} size={32} color={color} />
+    <Text style={styles.actionTitle}>{title}</Text>
+  </TouchableOpacity>
+);
+
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
+  container: { flex: 1, backgroundColor: "#f4f6fb" },
+  header: { backgroundColor: "#1976d2", padding: 25, borderBottomLeftRadius: 30, borderBottomRightRadius: 30, flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  title: { color: "#fff", fontSize: 26, fontWeight: "bold" },
+  subtitle: { color: "#e3f2fd", marginTop: 4 },
+  sos: { backgroundColor: "#ff1744", paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20 },
+  sosText: { color: "#fff", fontWeight: "bold" },
+  profileCard: { backgroundColor: "#fff", margin: 20, padding: 20, borderRadius: 20, elevation: 4 },
+  welcome: { fontSize: 16, color: "#555" },
+  username: { fontSize: 20, fontWeight: "bold", marginTop: 4 },
+  pointsBox: { flexDirection: "row", alignItems: "center", marginTop: 10 },
+  points: { fontWeight: "bold" },
+  section: { fontSize: 18, fontWeight: "bold", marginHorizontal: 20, marginTop: 10 },
+  grid: { flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between", marginHorizontal: 20, marginTop: 15 },
+  actionCard: { width: width * 0.42, backgroundColor: "#fff", padding: 22, borderRadius: 18, marginBottom: 16, borderTopWidth: 4, elevation: 5 },
+  actionTitle: { marginTop: 10, fontWeight: "bold" },
 });
